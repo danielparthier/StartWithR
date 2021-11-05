@@ -1,0 +1,272 @@
+---
+title: "Starting with **R**"
+output: html_notebook
+---
+
+With **R** you can generate, modify, load, save, and analyse your data.
+
+## Data Types
+
+Different data types might be necessary for different tasks at hand:
+
+-   Binary: `logical` - `TRUE`/`FALSE` or short `T`/`F`
+-   Indices and whole numbers: `integer` - `1L`, `-10L`
+-   Doubles: `numeric` - `1`, `3.14`
+-   Complex: `complex` - `1+2i`, `0+1i`
+-   String: `character` - `"hello"`, `"1"` or with single `'` `'blub'`
+-   Factors: `factor` - `factor(x = c("d", "c", "b", "d", "c", "a"), levels = c("a", "b", "c","d"))`
+
+Any data type can be assigned to a variable name by using `<-` (for help see `?assignOps`) or even `=`. However, just because you can use `=` doesn't mean you should (it can cause problems[^1]). A variable can be returned by simply typing the variable and running the script or by explicitly using `print()` statement.
+
+[^1]: All hell will break loose!!! (but also it can lead to unexpected behaviour when used in functions)
+
+```{r}
+two <- 2
+two
+one <- 1
+oneIsOne <- one
+print(oneIsOne)
+
+```
+
+## Data Structures
+
+The above mentioned data types can be saved in different ways. Some will be only saving one data type, others will allow for a mix of different data types.
+
+The simplest data structure is the 1 dimensional vector. It works with all different data types, but can contain only a single one.
+
+```{r}
+integerVec <- 1:10
+stringVec <- c("A", "B", "C", "D", "E")
+numericVec <- seq(from = 0, to = 10, by = 0.1)
+
+is.vector(integerVec)
+is.vector(stringVec)
+is.vector(numericVec)
+```
+
+A 2 dimensional data structure is the matrix, which can be seen as a vector with dimension attributes.
+
+```{r}
+mat1 <- matrix(data = 1:16, nrow = 4, ncol = 4)
+identityMat <- diag(x = 1, nrow = 4)
+
+# dimensions (rows, columns)
+dim(mat1)
+
+mat1
+identityMat
+```
+
+For cubes or higher dimensional data containing only one type
+
+```{r}
+cubicArray <- array(data = 1, dim = c(2,2,2))
+```
+
+For mixed data sets which can include strings, numbers, factors or logical values the `data.frame` or the `list` can be used.
+
+```{r}
+list1 <- list(x = 1:5, y = c("a", "b", "c", "d", "f"), z = c(T, T, T, F, F))
+
+dataframe1 <- data.frame(x = 1:5, y = c("a", "b", "c", "d", "f"), z = c(T, T, T, F, F))
+
+str(list1)
+str(dataframe1)
+
+is.data.frame(dataframe1)
+is.list(dataframe1)
+```
+
+A `data.frame` is a special case of the list where all the elements have the same length. Other special cases of `list`/`data.frame` are the `tibble` and `data.table`. These two cases come from
+
+## Functions
+
+Functions can be useful to work with data actively or to interact with your computer system. They are typically written as `functionName(functionArguments)` often requiring a function argument (as input) and will often return a result. However, this is not all the time the case and functions can return no output (void).
+
+To get the current working directory, the path which you are in at the moment, use: `getwd()`. [^2]
+
+[^2]: be aware of different platforms using different rules for forming paths (`.Platform$file.sep`)
+
+```{r}
+getwd()
+```
+
+The path will be shown as a character string. To avoid problems when working with paths it is generally advised to avoid spaces in the paths.
+
+Of course functions also handle numbers and inputs.
+
+```{r}
+# pi is a constant which is available in R
+sin(x = 0.5*pi)
+# if we leave "x =" out R assumes that the argument we provide is the first function argument
+sin(0.5*pi)
+```
+
+You can also write your own functions to reuse them or make your code easier to read and shorter. Functions can be very short and simple but also be very complex. Any object can be returned at the end of the function by using `return()` or just "returning" the result.
+
+```{r}
+# function
+Add2 <- function(x) {
+  Output <- x+2
+  return(Output)
+}
+Add2(x = 1)
+```
+
+```{r}
+# function
+Add4 <- function(x) {
+  Output <- x+4
+  Output
+}
+Add4(x = 1)
+```
+
+The power of functions is that they can be reused and combined with other functions to build more functionality and complexity which is sometimes required.
+
+```{r}
+# 1+4 = 5 then 5+2 = 7
+Add2(Add4(1))
+```
+
+There are also "control flow" functions which are found in almost any other language such as "for-loops", "while-loop", "if-statements" and others `?Control`.
+
+```{r}
+# check if 1 equals 2
+if(1==2) {
+  print("1 is the same as 2")
+} else {
+  print("1 is not 2...")
+}
+```
+
+```{r}
+# print for every element (i) in 1 to 10 if it is larger than 5
+for(i in 1:10) {
+  print(i > 5)
+}
+```
+
+### Advanced interlude (benchmarking)
+
+Some functions also can be applied to all the elements of a vector. These are referred to as "vectorised" functions which are faster than applying a single function to all elements of a vector separately. Both will often work but sometime speed might be an important factor.
+
+```{r}
+# vectorised sum in R
+sum(1:10)
+
+# non-vectorised sum using a "for" loop
+# a "for" loop performs an action for every element it is told to use
+MySum <- function(x) {
+  outSum <- 0
+  for(i in x) {
+    outSum <- outSum+i
+  }
+  outSum
+} 
+
+MySum(1:10)
+```
+
+The speed can be compared with the microbenchmark package. The function will run 100 times and measure for every run the run times. In our case `sum()` is much faster than our function which we build using a for loop.
+
+```{r}
+# check if microbenchmark is not installed ("!" flips TRUE to FALSE), if not install it
+if(!any(grepl(pattern = "microbenchmark", x = installed.packages()))) {
+  install.packages("microbenchark")
+}
+library(microbenchmark)
+
+# microbenchmark will repeat the function to measure how long execution takes
+microbenchmark(sum(1:1000), MySum(1:1000))
+```
+
+Important base functions will help you to calculate results or compare variables (look: `?groupGeneric`)
+
+## Using functions on the system's level
+
+Further we can use functions to modify files or folders. Here we will create a folder called "data" in the working directory. Comments in the code can be implemented with `#` at the beginning of the line. This will exclude everything behind the `#` from being evaluated.
+
+```{r, eval=TRUE}
+# check if the folder "data" exists. returns "TRUE" or "FALSE"
+if(dir.exists(paths = "data")) {
+  # if the folder exists delete it with all its content (recursive)
+  unlink(x = "data", recursive = T)
+}
+# create a new folder called "data"
+dir.create(path = "data")
+```
+
+Check if there is a folder with the name "data" in the current working directory ⟶ yes! ⟶ then delete folder and content (recursive) ⟶ after evaluation make a folder called "data" in the working directory.
+
+We can write a data file to the new directory.
+
+```{r}
+write.csv(x = cars, file = "data/carsFile.csv", row.names = T)
+```
+
+To rename it we can call `file.rename()`. To check whether a file exists we can use `file.exists()` which will return a `TRUE` or `FALSE`.
+
+```{r}
+file.exists("data/RenamedFile.csv")
+```
+
+```{r}
+
+# rename the generated file
+file.rename(from = "data/carsFile.csv", to = "data/RenamedFile.csv")
+
+# load and assign data from file
+newData <- read.csv(file = "data/RenamedFile.csv")
+
+# check first rows to look at data
+head(newData)
+
+# summary
+summary(newData)
+
+# plot 2nd to 3rd column columns against each other
+plot(newData[,2:3])
+```
+
+## Analysis
+
+A lot of the useful functions will help you to analyse your data. *R* has a large library of statistical tools. They are usually easy to use and well documented i.e. `?lm`, `?glm`, `?t.test`, `?wilcox.test`, `?anova`, but also more advanced models for nested structures from the `lme4` package.
+
+```{r}
+# linear regression dist = speed*coefficient + Intercept
+# calculating the intercept is on by default in "lm" but can be switched off (dist ~ 0 + speed)
+linearModel <- lm(formula = dist ~ speed, data = cars)
+linearModel
+```
+
+You can get more information for objects by summarising the object.
+
+```{r}
+summary(linearModel)
+```
+
+## Helpful packages
+
+To get more functionality we can use different packages which can be installed by `install.package("packageName")` and loaded with `library("packageName")`. Different packages to explore are `ggplot2` for visualising data, `data.table` for fast and different syntax for working with data sets, and `lme4` for analysing nested data structures (measurements of a cell nested in one tissue, nested in one patient).
+
+```{r}
+library(ggplot2) # load ggplo2 library to access all functions from package
+ggplot(data = cars, mapping = aes(x = speed, y = dist))+ # define data set and axis input
+  geom_point()+ # a layer of points using the defined "mapping"
+  geom_smooth(method = "lm")+ # fit linear model ("lm") regression line into data
+  theme_classic() # use a theme of your choice (otherwise standard theme is used)
+```
+
+For data wrangling (modifying and organising) different options are available such as the base functions, `dplyr` or `data.table`. These functions will be useful once you want to make summaries or advanced analysis.
+
+```{r}
+library(data.table)
+carsDT <- as.data.table(x = cars)
+# with data.table you can use functions easily on groups or conditions
+# DT[i,j,k] where i is the row (which you can also subset or use a conditional "<", "==" etc.), j is the modification you perform on a column, k is the "group by" statement
+carsDT[speed>10,.(MeanDist=mean(dist), SdDist=sd(dist)),by=speed]
+```
+
+-   
