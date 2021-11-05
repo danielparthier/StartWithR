@@ -5,7 +5,7 @@ Daniel Parthier
 
 ## Some R resources
 
-This is a short intro to how to use R and what it can do. Further
+This is a short intro showing some of the use cases of R. Further
 resources which you can use are:
 
 -   different cheat sheets
