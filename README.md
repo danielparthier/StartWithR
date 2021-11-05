@@ -3,7 +3,7 @@ Intro To R
 Daniel Parthier
 05/11/2021
 
-## Some R resources
+## Additional R resources
 
 This is a short intro showing some of the use cases of R. Further
 resources which you can use are:
